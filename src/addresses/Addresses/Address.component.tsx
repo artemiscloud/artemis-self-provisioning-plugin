@@ -11,9 +11,6 @@ import {
   EmptyStateBody,
   EmptyStateHeader,
   EmptyStateIcon,
-  Page,
-  PageSection,
-  PageSectionVariants,
   Spinner,
   Title,
 } from '@patternfly/react-core';
@@ -43,63 +40,63 @@ const Addresses: FC<AddressesProps> = ({ isBrokerPod }) => {
   ];
 
   return (
-    <Page>
-      <PageSection variant={PageSectionVariants.light}>
-        {!isBrokerPod ? (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText={t('This is not a Broker Pod')}
-              icon={<EmptyStateIcon icon={CubesIcon} />}
-              headingLevel="h4"
-            />
-            <EmptyStateBody>
-              {t(
-                'The selected pod is not a broker pod. Please choose a valid broker pod to view the addresses.',
-              )}
-            </EmptyStateBody>
-          </EmptyState>
-        ) : loadError ? (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText={t('Error while fetching addresses')}
-              icon={<EmptyStateIcon icon={ErrorCircleOIcon} />}
-              headingLevel="h4"
-            />
-            <EmptyStateBody>
-              {t('Could not fetch addresses. Please try again later.')}
-            </EmptyStateBody>
-          </EmptyState>
-        ) : isLoading ? (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText={t('Loading')}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
-        ) : isSuccess && addressData?.length ? (
-          <>
+    <>
+      {!isBrokerPod ? (
+        <EmptyState>
+          <EmptyStateHeader
+            titleText={t('This is not a Broker Pod')}
+            icon={<EmptyStateIcon icon={CubesIcon} />}
+            headingLevel="h4"
+          />
+          <EmptyStateBody>
+            {t(
+              'The selected pod is not a broker pod. Please choose a valid broker pod to view the addresses.',
+            )}
+          </EmptyStateBody>
+        </EmptyState>
+      ) : loadError ? (
+        <EmptyState>
+          <EmptyStateHeader
+            titleText={t('Error while fetching addresses')}
+            icon={<EmptyStateIcon icon={ErrorCircleOIcon} />}
+            headingLevel="h4"
+          />
+          <EmptyStateBody>
+            {t('Could not fetch addresses. Please try again later.')}
+          </EmptyStateBody>
+        </EmptyState>
+      ) : isLoading ? (
+        <EmptyState>
+          <EmptyStateHeader
+            titleText={t('Loading')}
+            icon={<EmptyStateIcon icon={Spinner} />}
+            headingLevel="h4"
+          />
+        </EmptyState>
+      ) : isSuccess && addressData?.length ? (
+        <>
+          <div className="pf-u-pt-lg pf-u-pl-lg pf-u-pb-lg">
             <Title headingLevel="h1">{t('Addresses')}</Title>
-            <br />
-            <VirtualizedTable<Address>
-              data={addressData}
-              unfilteredData={addressData}
-              loaded={isSuccess}
-              loadError={loadError}
-              columns={columns}
-              Row={({ obj, activeColumnIDs, rowData }) => (
-                <AddressRow
-                  obj={obj}
-                  rowData={rowData}
-                  activeColumnIDs={activeColumnIDs}
-                  columns={columns}
-                />
-              )}
-            />
-          </>
-        ) : null}
-      </PageSection>
-    </Page>
+          </div>
+          <br />
+          <VirtualizedTable<Address>
+            data={addressData}
+            unfilteredData={addressData}
+            loaded={isSuccess}
+            loadError={loadError}
+            columns={columns}
+            Row={({ obj, activeColumnIDs, rowData }) => (
+              <AddressRow
+                obj={obj}
+                rowData={rowData}
+                activeColumnIDs={activeColumnIDs}
+                columns={columns}
+              />
+            )}
+          />
+        </>
+      ) : null}
+    </>
   );
 };
 

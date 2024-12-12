@@ -14,8 +14,6 @@ import {
   DescriptionListTerm,
   List,
   ListItem,
-  Page,
-  PageSection,
   Spinner,
   Title,
 } from '@patternfly/react-core';
@@ -189,44 +187,35 @@ const ConnectivityHelper: FC<IssuerSecretsDownloaderProps> = ({ cr }) => {
   }
   return (
     <>
-      <PageSection
-        hasOverflowScroll={true}
-        aria-label="secrets"
-        padding={{ default: 'noPadding' }}
-        className={
-          'pf-u-px-lg-on-xl pf-u-pt-sm-on-xl pf-u-pb-lg-on-xl pf-u-px-md pf-u-pb-md'
-        }
-      >
-        <Title headingLevel="h2">{t('Connectivity')}</Title>
-        <Card>
-          <>
-            <CardTitle>{t('Connect using Artemis')}</CardTitle>
-            <CardBody>
-              <DescriptionList>
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Get Artemis')}</DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {t('Download the')}{' '}
-                    <a href="https://activemq.apache.org/components/artemis/download/">
-                      {t('latest release')}
-                    </a>{' '}
-                    {t(
-                      'of ActiveMQ Artemis, decompress the tarball and locate the artemis executable.',
-                    )}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-                {cr.spec.acceptors.map((acceptor) => (
-                  <HelpConnectAcceptor
-                    cr={cr}
-                    acceptor={acceptor}
-                    key={acceptor.name}
-                  />
-                ))}
-              </DescriptionList>
-            </CardBody>
-          </>
-        </Card>
-      </PageSection>
+      <Title headingLevel="h2">{t('Connectivity')}</Title>
+      <Card>
+        <>
+          <CardTitle>{t('Connect using Artemis')}</CardTitle>
+          <CardBody>
+            <DescriptionList>
+              <DescriptionListGroup>
+                <DescriptionListTerm>{t('Get Artemis')}</DescriptionListTerm>
+                <DescriptionListDescription>
+                  {t('Download the')}{' '}
+                  <a href="https://activemq.apache.org/components/artemis/download/">
+                    {t('latest release')}
+                  </a>{' '}
+                  {t(
+                    'of ActiveMQ Artemis, decompress the tarball and locate the artemis executable.',
+                  )}
+                </DescriptionListDescription>
+              </DescriptionListGroup>
+              {cr.spec.acceptors.map((acceptor) => (
+                <HelpConnectAcceptor
+                  cr={cr}
+                  acceptor={acceptor}
+                  key={acceptor.name}
+                />
+              ))}
+            </DescriptionList>
+          </CardBody>
+        </>
+      </Card>
     </>
   );
 };
@@ -247,13 +236,13 @@ export const OverviewContainer: FC<OverviewContainerProps> = ({
   if (loading) return <Loading />;
 
   return (
-    <Page>
+    <>
       <Metrics
         name={name}
         namespace={namespace}
         size={cr.spec?.deploymentPlan?.size}
       />
       <ConnectivityHelper cr={cr} />
-    </Page>
+    </>
   );
 };

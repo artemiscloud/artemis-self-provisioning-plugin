@@ -10,7 +10,6 @@ import {
   HintBody,
   Modal,
   ModalVariant,
-  Page,
   useInterval,
 } from '@patternfly/react-core';
 import { Loading } from '@app/shared-components/Loading/Loading';
@@ -97,102 +96,100 @@ export const YamlEditorView: FC<YamlEditorViewPropTypes> = ({
   useInterval(removeLastAlert, alerts.length > 0 ? 2000 : null);
   return (
     <>
-      <Page>
-        {yamlParseError !== undefined && (
-          <Alert
-            title={yamlParseError.message}
-            variant={AlertVariant.danger}
-            isInline
-            actionClose
-            className="pf-u-mt-md pf-u-mx-md"
-          />
-        )}
-        <Modal
-          variant={ModalVariant.small}
-          title={t('Unsaved changes')}
-          isOpen={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-          actions={[
-            <Button
-              key="confirm"
-              variant="primary"
-              onClick={() => {
-                if (updateModel(currentYaml)) {
-                  permissionGranted();
-                } else {
-                  permissionDenied();
-                }
-                setIsModalVisible(false);
-              }}
-            >
-              {t('Save and proceed')}
-            </Button>,
-            <Button
-              key="confirm"
-              variant="danger"
-              onClick={() => {
-                setIsModalVisible(false);
+      {yamlParseError !== undefined && (
+        <Alert
+          title={yamlParseError.message}
+          variant={AlertVariant.danger}
+          isInline
+          actionClose
+          className="pf-u-mt-md pf-u-mx-md"
+        />
+      )}
+      <Modal
+        variant={ModalVariant.small}
+        title={t('Unsaved changes')}
+        isOpen={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        actions={[
+          <Button
+            key="confirm"
+            variant="primary"
+            onClick={() => {
+              if (updateModel(currentYaml)) {
                 permissionGranted();
-              }}
-            >
-              {t('Discard and proceed')}
-            </Button>,
-            <Button
-              key="cancel"
-              variant="link"
-              onClick={() => {
-                setIsModalVisible(false);
+              } else {
                 permissionDenied();
-              }}
-            >
-              {t('Keep editing')}
-            </Button>,
-          ]}
-        >
-          {t(
-            'The YAML editor contains pending modifications, manual saving is required.',
-          )}
-        </Modal>
-        {formState.yamlHasUnsavedChanges && (
-          <Hint>
-            <HintBody>
-              {t(
-                'Any changes in the YAML view has to be manually saved to get taken into consideration.',
-              )}
-            </HintBody>
-          </Hint>
-        )}
-        <AlertGroup isToast isLiveRegion>
-          {alerts.map(({ key, variant, title }) => (
-            <Alert
-              variant={AlertVariant[variant]}
-              title={title}
-              actionClose={
-                <AlertActionCloseButton
-                  title={title as string}
-                  variantLabel={`${variant} alert`}
-                  onClose={() => removeAlert(key)}
-                />
               }
-              key={key}
-            />
-          ))}
-        </AlertGroup>
-        <Suspense fallback={<Loading />}>
-          <ResourceYAMLEditor
-            initialResource={YAML.stringify(formState.cr, null, '  ')}
-            onSave={updateModel}
-            onChange={(newContent: string) => {
-              setCurrentYaml(newContent);
-              if (stringedFormState !== newContent) {
-                dispatch({
-                  operation: ArtemisReducerOperations.setYamlHasUnsavedChanges,
-                });
-              }
+              setIsModalVisible(false);
             }}
+          >
+            {t('Save and proceed')}
+          </Button>,
+          <Button
+            key="confirm"
+            variant="danger"
+            onClick={() => {
+              setIsModalVisible(false);
+              permissionGranted();
+            }}
+          >
+            {t('Discard and proceed')}
+          </Button>,
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => {
+              setIsModalVisible(false);
+              permissionDenied();
+            }}
+          >
+            {t('Keep editing')}
+          </Button>,
+        ]}
+      >
+        {t(
+          'The YAML editor contains pending modifications, manual saving is required.',
+        )}
+      </Modal>
+      {formState.yamlHasUnsavedChanges && (
+        <Hint>
+          <HintBody>
+            {t(
+              'Any changes in the YAML view has to be manually saved to get taken into consideration.',
+            )}
+          </HintBody>
+        </Hint>
+      )}
+      <AlertGroup isToast isLiveRegion>
+        {alerts.map(({ key, variant, title }) => (
+          <Alert
+            variant={AlertVariant[variant]}
+            title={title}
+            actionClose={
+              <AlertActionCloseButton
+                title={title as string}
+                variantLabel={`${variant} alert`}
+                onClose={() => removeAlert(key)}
+              />
+            }
+            key={key}
           />
-        </Suspense>
-      </Page>
+        ))}
+      </AlertGroup>
+      <Suspense fallback={<Loading />}>
+        <ResourceYAMLEditor
+          initialResource={YAML.stringify(formState.cr, null, '  ')}
+          onSave={updateModel}
+          onChange={(newContent: string) => {
+            setCurrentYaml(newContent);
+            if (stringedFormState !== newContent) {
+              dispatch({
+                operation: ArtemisReducerOperations.setYamlHasUnsavedChanges,
+              });
+            }
+          }}
+        />
+      </Suspense>
     </>
   );
 };
