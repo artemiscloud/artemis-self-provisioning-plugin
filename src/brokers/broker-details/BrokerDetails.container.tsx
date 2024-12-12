@@ -4,8 +4,7 @@ import {
   Tab,
   TabTitleText,
   Title,
-  PageSection,
-  PageSectionVariants,
+  Spinner,
   Alert,
 } from '@patternfly/react-core';
 import { useTranslation } from '@app/i18n/i18n';
@@ -19,15 +18,13 @@ import {
   JolokiaTestPanel,
 } from './components/JolokiaDevComponents';
 import { OverviewContainer } from './components/Overview/Overview.container';
-import { PodsContainer } from '@app/brokers/broker-details/components/broker-pods/PodsList.container';
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-} from 'react-router-dom-v5-compat';
+import { PodsContainer } from './components/broker-pods/PodsList.container';
+import { useParams } from 'react-router-dom-v5-compat';
 import { JolokiaAuthentication } from '@app/jolokia/components/JolokiaAuthentication';
 import { useGetBrokerCR } from '@app/k8s/customHooks';
 import { BrokerCR } from '@app/k8s/types';
+import { HorizontalNav } from '@openshift-console/dynamic-plugin-sdk';
+import { YamlContainer } from './components/yaml/Yaml.container';
 
 type AuthenticatedPageContentPropType = {
   brokerCr: BrokerCR;
@@ -44,20 +41,89 @@ const AuthenticatedPageContent: FC<AuthenticatedPageContentPropType> = ({
   error: errorBrokerCr,
 }) => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const activeTabKey = searchParams.get('tab') || 'overview';
-  const navigate = useNavigate();
-  const handleTabSelect = (_event: any, eventKey: string | number) => {
-    searchParams.set('tab', eventKey.toString());
-    navigate({ search: searchParams.toString() });
-  };
+
+  const pages = [
+    {
+      href: '',
+      name: t('Overview'),
+      component: () =>
+        !loadingBrokerCr ? (
+          <OverviewContainer
+            name={name}
+            namespace={namespace}
+            cr={brokerCr}
+            loading={loadingBrokerCr}
+          />
+        ) : (
+          <Spinner size="md" />
+        ),
+    },
+    {
+      href: 'clients',
+      name: t('Clients'),
+      component: ClientsContainer,
+    },
+    {
+      href: 'pods',
+      name: t('Pods'),
+      component: PodsContainer,
+    },
+    {
+      href: 'yaml',
+      name: t('YAML'),
+      component: () =>
+        !loadingBrokerCr ? (
+          <YamlContainer brokerCr={brokerCr} />
+        ) : (
+          <Spinner size="md" />
+        ),
+    },
+  ];
+
+  if (process.env.NODE_ENV === 'development') {
+    pages.push(
+      {
+        href: 'jolokiaTestPanel',
+        name: t('check-jolokia'),
+        component: () => <JolokiaTestPanel />,
+      },
+      {
+        href: 'jolokia-details',
+        name: t('jolokia-details'),
+        component: () => (
+          <Tabs defaultActiveKey={0}>
+            <Tab
+              eventKey={0}
+              title={<TabTitleText>{t('broker')}</TabTitleText>}
+            >
+              <JolokiaBrokerDetails />
+            </Tab>
+            <Tab
+              eventKey={1}
+              title={<TabTitleText>{t('addresses')}</TabTitleText>}
+            >
+              <JolokiaAddressDetails />
+            </Tab>
+            <Tab
+              eventKey={2}
+              title={<TabTitleText>{t('acceptors')}</TabTitleText>}
+            >
+              <JolokiaAcceptorDetails />
+            </Tab>
+            <Tab
+              eventKey={3}
+              title={<TabTitleText>{t('queues')}</TabTitleText>}
+            >
+              <JolokiaQueueDetails />
+            </Tab>
+          </Tabs>
+        ),
+      },
+    );
+  }
+
   return (
-    <PageSection
-      variant={PageSectionVariants.light}
-      padding={{ default: 'noPadding' }}
-      className="pf-c-page__main-tabs"
-    >
+    <>
       <div className="pf-u-mt-md pf-u-mb-md">
         <BrokerDetailsBreadcrumb name={name} namespace={namespace} />
         <Title headingLevel="h2" className="pf-u-ml-md">
@@ -65,71 +131,8 @@ const AuthenticatedPageContent: FC<AuthenticatedPageContentPropType> = ({
         </Title>
       </div>
       {errorBrokerCr && <Alert variant="danger" title={errorBrokerCr} />}
-      <Tabs activeKey={activeTabKey} onSelect={handleTabSelect}>
-        <Tab
-          eventKey={'overview'}
-          title={<TabTitleText>{t('Overview')}</TabTitleText>}
-        >
-          <OverviewContainer
-            name={name}
-            namespace={namespace}
-            cr={brokerCr}
-            loading={loadingBrokerCr}
-          />
-        </Tab>
-        <Tab
-          eventKey={'clients'}
-          title={<TabTitleText>{t('Clients')}</TabTitleText>}
-        >
-          <ClientsContainer />
-        </Tab>
-        <Tab eventKey={'pods'} title={<TabTitleText>{t('Pods')}</TabTitleText>}>
-          <PodsContainer />
-        </Tab>
-        {process.env.NODE_ENV === 'development' && (
-          <Tab
-            eventKey={'jolokiaTestPanel'}
-            title={<TabTitleText>{t('check-jolokia ')}</TabTitleText>}
-          >
-            <JolokiaTestPanel />
-            <br />
-          </Tab>
-        )}
-        {process.env.NODE_ENV === 'development' && (
-          <Tab
-            eventKey={'jolokia-details'}
-            title={<TabTitleText>{t('jolokia-details')}</TabTitleText>}
-          >
-            <Tabs defaultActiveKey={0}>
-              <Tab
-                eventKey={0}
-                title={<TabTitleText>{t('broker')}</TabTitleText>}
-              >
-                <JolokiaBrokerDetails />
-              </Tab>
-              <Tab
-                eventKey={1}
-                title={<TabTitleText>{t('addresses')}</TabTitleText>}
-              >
-                <JolokiaAddressDetails />
-              </Tab>
-              <Tab
-                eventKey={2}
-                title={<TabTitleText>{t('acceptors')}</TabTitleText>}
-              >
-                <JolokiaAcceptorDetails />
-              </Tab>
-              <Tab
-                eventKey={3}
-                title={<TabTitleText>{t('queues')}</TabTitleText>}
-              >
-                <JolokiaQueueDetails />
-              </Tab>
-            </Tabs>
-          </Tab>
-        )}
-      </Tabs>
-    </PageSection>
+      <HorizontalNav pages={pages} />
+    </>
   );
 };
 
@@ -137,7 +140,6 @@ export const BrokerDetailsPage: FC = () => {
   const { ns: namespace, name } = useParams<{ ns?: string; name?: string }>();
 
   const { brokerCr, isLoading, error } = useGetBrokerCR(name, namespace);
-
   return (
     <>
       <JolokiaAuthentication brokerCR={brokerCr} podOrdinal={0}>

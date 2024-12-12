@@ -29,7 +29,7 @@
   {
     "type": "console.page/route",
     "properties": {
-      "exact": true,
+      "exact": false,
       "path": [
         "/k8s/ns/:ns/brokers/:name",
         "/k8s/all-namespaces/brokers/:name"
