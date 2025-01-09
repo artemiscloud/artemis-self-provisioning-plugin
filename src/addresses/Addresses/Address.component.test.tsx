@@ -2,7 +2,10 @@ import { render, screen } from '@app/test-utils';
 import { Addresses } from './Address.component';
 import { JolokiaAuthentication } from '@app/jolokia/components/JolokiaAuthentication';
 import { useJolokiaServiceGetAddresses } from '@app/openapi/jolokia/queries';
-import { useJolokiaLogin } from '@app/jolokia/customHooks';
+import {
+  BrokerConnectionData,
+  useGetEndpointData,
+} from '@app/jolokia/customHooks';
 
 jest.mock('@openshift-console/dynamic-plugin-sdk', () => ({
   VirtualizedTable: jest.fn(({ Row, data, columns }) => (
@@ -24,7 +27,7 @@ jest.mock('../../openapi/jolokia/queries', () => ({
 }));
 
 jest.mock('../../jolokia/customHooks', () => ({
-  useJolokiaLogin: jest.fn(),
+  useGetEndpointData: jest.fn(),
   useGetApiServerBaseUrl: jest.fn(),
 }));
 
@@ -34,7 +37,7 @@ jest.mock('./AddressRow', () => ({
 
 const mockUseJolokiaServiceReadAddressAttributes =
   useJolokiaServiceGetAddresses as jest.Mock;
-const mockUseJolokiaLogin = useJolokiaLogin as jest.Mock;
+const mockUseGetEndpointData = useGetEndpointData as jest.Mock;
 
 describe('Addresses', () => {
   const mockData = [
@@ -52,11 +55,14 @@ describe('Addresses', () => {
       isSuccess: true,
       error: null,
     });
-    mockUseJolokiaLogin.mockReturnValue({
-      token: 'mock-token',
-      isError: false,
-      source: 'api',
-    });
+    const bcd: BrokerConnectionData = {
+      brokerName: 'amqBroker',
+      hostname: 'some.name.org',
+      port: '80',
+      scheme: 'https',
+      targetEndpoint: 'https://some.name.org:80',
+    };
+    mockUseGetEndpointData.mockReturnValue(bcd);
   });
 
   it('should render the Addresses title when isBrokerPod is true', () => {

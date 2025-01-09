@@ -438,10 +438,10 @@ export const CertSecretSelector: FC<CertSecretSelectorProps> = ({
       },
       spec: {
         isCA: true,
-        commonName: 'artemiscloud.io',
+        commonName: 'arkmq-org.io',
         secretName: certName + '-secret',
         subject: {
-          organizations: ['www.artemiscloud.io'],
+          organizations: ['www.arkmq-org.io'],
         },
         issuerRef: {
           name: 'issuer-amq-spp-test',

@@ -1,7 +1,7 @@
 /* eslint-env node */
 
 import * as path from 'path';
-import { Configuration as WebpackConfiguration } from 'webpack';
+import { DefinePlugin, Configuration as WebpackConfiguration } from 'webpack';
 import { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
 import { ConsoleRemotePlugin } from '@openshift-console/dynamic-plugin-sdk-webpack';
 
@@ -82,6 +82,12 @@ const config: Configuration = {
     },
   },
   plugins: [
+    new DefinePlugin({
+      'process.env.ENV_IS_PRODUCTION': isProd
+        ? JSON.stringify(true)
+        : JSON.stringify(false),
+      'process.env.JOLOKIA_NO_TLS': JSON.stringify(false),
+    }),
     new ConsoleRemotePlugin(),
     new CopyWebpackPlugin({
       patterns: [{ from: path.resolve(__dirname, 'locales'), to: 'locales' }],

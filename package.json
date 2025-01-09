@@ -1,14 +1,14 @@
 {
   "name": "activemq-artemis-self-provisioning-plugin",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "homepage": "https://github.com/artemiscloud/activemq-artemis-self-provisioning-plugin#readme",
+  "homepage": "https://github.com/arkmq-org/activemq-artemis-self-provisioning-plugin#readme",
   "bugs": {
-    "url": "https://github.com/artemiscloud/activemq-artemis-self-provisioning-plugin/issues"
+    "url": "https://github.com/arkmq-org/activemq-artemis-self-provisioning-plugin/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:artemiscloud/activemq-activemq-artemis-self-provisioning-plugin.git"
+    "url": "git+ssh://git@github.com:arkmq-org/activemq-activemq-artemis-self-provisioning-plugin.git"
   },
   "scripts": {
     "build": "yarn clean && NODE_ENV=production yarn webpack",
@@ -106,7 +106,7 @@
   },
   "consolePlugin": {
     "name": "activemq-artemis-self-provisioning-plugin",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "displayName": "Artemis Self Provisioning Plugin",
     "description": "Artemis Self Provisioning Plugin",
     "exposedModules": {
@@ -122,5 +122,6 @@
     }
   },
   "readme": "README.md",
-  "_id": "activemq-artemis-self-provisioning-plugin@0.3.0"
+  "_id": "activemq-artemis-self-provisioning-plugin@0.4.0",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

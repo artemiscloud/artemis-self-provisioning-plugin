@@ -57,15 +57,15 @@ const AddressDetails: FC<AddressDetailsTableProps> = ({ name }) => {
     'UnRoutedMessageCount',
   ];
 
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const {
     data: readAddressAttrs,
     isSuccess,
     error,
   } = useJolokiaServiceReadAddressAttributes({
-    jolokiaSessionId: authToken,
     name: name,
     attrs: allAddressAttrs,
+    targetEndpoint: authContext.targetEndpoint,
   });
 
   const [page, setPage] = useState(1);

@@ -50,13 +50,11 @@ function getApiHost(): string {
 }
 
 function getApiPort(): string {
-  return process.env.NODE_ENV === 'production' ? '443' : '9443';
+  return process.env.NODE_ENV === 'production' ? '443' : '9442';
 }
 
 function getProxyUrl(): string {
-  return process.env.NODE_ENV === 'production'
-    ? '/api/proxy/plugin/activemq-artemis-self-provisioning-plugin/api-server-service'
-    : '';
+  return '/api/proxy/plugin/activemq-artemis-self-provisioning-plugin/api-server-service';
 }
 
 type SignatureSubFormType = {
@@ -68,7 +66,7 @@ export const SignatureSubForm: FC<SignatureSubFormType> = ({
   name,
   signature,
 }) => {
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const [formValues, setFormvalues] = useState<Record<string, string>>({});
   const update = (name: string, value: string) => {
     const newFormValues = { ...formValues };
@@ -107,7 +105,7 @@ export const SignatureSubForm: FC<SignatureSubFormType> = ({
               return;
             }
             execRequest({
-              jolokiaSessionId: authToken,
+              targetEndpoint: authContext.targetEndpoint,
               requestBody: {
                 signature: {
                   name: name,
@@ -207,7 +205,7 @@ export const FetchAttr: FC<DisplayDetailsType> = ({
   acceptor,
   queue,
 }) => {
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const [formSelectValue, setFormSelectValue] = useState('');
 
   const onChange = (value: string) => {
@@ -235,24 +233,30 @@ export const FetchAttr: FC<DisplayDetailsType> = ({
     queryFn: () => {
       if (queue) {
         return JolokiaService.readQueueAttributes(
-          authToken,
           queue.name,
           queue.address.name,
           queue['routing-type'],
+          authContext.targetEndpoint,
           [formSelectValue],
         );
       }
       if (acceptor) {
-        return JolokiaService.readAcceptorAttributes(authToken, acceptor.name, [
-          formSelectValue,
-        ]);
+        return JolokiaService.readAcceptorAttributes(
+          acceptor.name,
+          authContext.targetEndpoint,
+          [formSelectValue],
+        );
       }
       if (address) {
-        return JolokiaService.readAddressAttributes(authToken, address.name, [
-          formSelectValue,
-        ]);
+        return JolokiaService.readAddressAttributes(
+          address.name,
+          authContext.targetEndpoint,
+          [formSelectValue],
+        );
       }
-      return JolokiaService.readBrokerAttributes(authToken, [formSelectValue]);
+      return JolokiaService.readBrokerAttributes(authContext.targetEndpoint, [
+        formSelectValue,
+      ]);
     },
     enabled: formSelectValue !== '',
   });
@@ -298,16 +302,16 @@ export const FetchAttr: FC<DisplayDetailsType> = ({
 };
 
 export const JolokiaBrokerDetails: FC = () => {
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
 
   const { data: brokers, isSuccess: brokersSuccess } =
-    useJolokiaServiceGetBrokers({ jolokiaSessionId: authToken });
+    useJolokiaServiceGetBrokers({ targetEndpoint: authContext.targetEndpoint });
 
   const broker0Name = brokersSuccess ? brokers[0].name : '';
 
   const { data: brokersDetails, isSuccess: isSuccesBrokersDetails } = useQuery({
     queryKey: [useJolokiaServiceGetBrokerDetailsKey + broker0Name],
-    queryFn: () => JolokiaService.getBrokerDetails(authToken),
+    queryFn: () => JolokiaService.getBrokerDetails(authContext.targetEndpoint),
     enabled: brokersSuccess,
   });
   if (!isSuccesBrokersDetails) {
@@ -326,17 +330,22 @@ export const JolokiaBrokerDetails: FC = () => {
 };
 
 export const JolokiaAddressDetails: FC = () => {
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const [selectedAddress, setSelectedAddress] = useState('');
 
   const { data: addresses, isSuccess: addressesSuccess } =
-    useJolokiaServiceGetAddresses({ jolokiaSessionId: authToken });
+    useJolokiaServiceGetAddresses({
+      targetEndpoint: authContext.targetEndpoint,
+    });
 
   const { data: addressDetails, isSuccess: isSuccessAddressDetails } = useQuery(
     {
       queryKey: [useJolokiaServiceGetAddressDetailsKey + selectedAddress],
       queryFn: () =>
-        JolokiaService.getAddressDetails(authToken, selectedAddress),
+        JolokiaService.getAddressDetails(
+          authContext.targetEndpoint,
+          selectedAddress,
+        ),
       enabled: addressesSuccess && selectedAddress !== '',
     },
   );
@@ -379,17 +388,22 @@ export const JolokiaAddressDetails: FC = () => {
 };
 
 export const JolokiaAcceptorDetails: FC = () => {
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const [selectedAcceptor, setSelectedAcceptor] = useState('');
 
   const { data: acceptors, isSuccess: isAcceptorsSuccess } =
-    useJolokiaServiceGetAcceptors({ jolokiaSessionId: authToken });
+    useJolokiaServiceGetAcceptors({
+      targetEndpoint: authContext.targetEndpoint,
+    });
 
   const { data: addressDetails, isSuccess: isSuccessAddressDetails } = useQuery(
     {
       queryKey: [useJolokiaServiceGetAcceptorsKey + selectedAcceptor],
       queryFn: () =>
-        JolokiaService.getAcceptorDetails(authToken, selectedAcceptor),
+        JolokiaService.getAcceptorDetails(
+          authContext.targetEndpoint,
+          selectedAcceptor,
+        ),
       enabled: isAcceptorsSuccess && selectedAcceptor !== '',
     },
   );
@@ -432,11 +446,11 @@ export const JolokiaAcceptorDetails: FC = () => {
 };
 
 export const JolokiaQueueDetails: FC = () => {
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const [selectedQueue, setSelectesQueue] = useState('');
 
   const { data: queues, isSuccess: isQueueSuccess } =
-    useJolokiaServiceGetQueues({ jolokiaSessionId: authToken });
+    useJolokiaServiceGetQueues({ targetEndpoint: authContext.targetEndpoint });
 
   const queue =
     selectedQueue !== ''
@@ -447,7 +461,7 @@ export const JolokiaQueueDetails: FC = () => {
     queryKey: [useJolokiaServiceGetQueueDetailsKey + selectedQueue],
     queryFn: () =>
       JolokiaService.getQueueDetails(
-        authToken,
+        authContext.targetEndpoint,
         queue.name,
         queue['routing-type'],
         queue.address.name,
@@ -488,7 +502,7 @@ const JolokiaTestPanel: FC = () => {
   const [jolokiaTestResult, setJolokiaTestResult] = useState('Result:');
   const [requestError, setRequestError] = useState(false);
 
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
 
   const setError = (error: string) => {
     setJolokiaTestResult(error);
@@ -544,9 +558,7 @@ const JolokiaTestPanel: FC = () => {
       const encodedUrl = testUrl.replace(/,/g, '%2C');
       fetch(encodedUrl, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          'jolokia-session-id': authToken,
-        },
+        headers: {},
       })
         .then((result): void => {
           if (result.ok) {
@@ -590,7 +602,7 @@ const JolokiaTestPanel: FC = () => {
         }
       />
       <div>
-        <Button name="query" onClick={onButtonClick} disabled={!authToken}>
+        <Button name="query" onClick={onButtonClick}>
           Submit query
         </Button>
         &nbsp;&nbsp;&nbsp;
@@ -602,7 +614,7 @@ const JolokiaTestPanel: FC = () => {
           name="exec"
           onClick={() =>
             performExecBrokerOperation({
-              jolokiaSessionId: authToken,
+              targetEndpoint: authContext.targetEndpoint,
               requestBody: {
                 signature: {
                   name: 'listAddresses',
@@ -616,7 +628,6 @@ const JolokiaTestPanel: FC = () => {
               },
             })
           }
-          disabled={!authToken}
         >
           Test Operation
         </Button>

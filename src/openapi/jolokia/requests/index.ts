@@ -16,10 +16,10 @@ export type { ClusterConnection } from './models/ClusterConnection';
 export type { ComponentAttribute } from './models/ComponentAttribute';
 export type { ComponentDetails } from './models/ComponentDetails';
 export { DummyResponse } from './models/DummyResponse';
+export type { Endpoint } from './models/Endpoint';
 export type { ExecResult } from './models/ExecResult';
 export { FailureResponse } from './models/FailureResponse';
 export { JavaTypes } from './models/JavaTypes';
-export type { LoginResponse } from './models/LoginResponse';
 export type { OperationArgument } from './models/OperationArgument';
 export type { OperationRef } from './models/OperationRef';
 export type { OperationResult } from './models/OperationResult';
@@ -29,4 +29,3 @@ export type { Signatures } from './models/Signatures';
 
 export { DevelopmentService } from './services/DevelopmentService';
 export { JolokiaService } from './services/JolokiaService';
-export { SecurityService } from './services/SecurityService';

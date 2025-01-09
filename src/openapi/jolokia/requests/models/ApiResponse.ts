@@ -4,6 +4,9 @@
 
 export type ApiResponse = {
   message?: {
+    security?: {
+      enabled?: boolean;
+    };
     info?: {
       name?: string;
       description?: string;
@@ -15,10 +18,6 @@ export type ApiResponse = {
     };
   };
   status?: ApiResponse.status;
-  /**
-   * The jwt token
-   */
-  'jolokia-session-id'?: string;
 };
 
 export namespace ApiResponse {

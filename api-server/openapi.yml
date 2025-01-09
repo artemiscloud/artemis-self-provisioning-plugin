@@ -6,7 +6,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  version: 0.1.1
+  version: 0.1.2
   description: |
     This document contains a list of currently available apis that
     can be used by the **activemq-artemis-self-provisioning plugin**
@@ -94,80 +94,10 @@ tags:
   - name: development
     description: for development purposes
 
+security:
+  - bearerAuth: []
+
 paths:
-  /jolokia/login:
-    post:
-      summary: The login api
-      description: >
-        This api is used to login to a jolokia endpoint.
-        It tries to get the broker mbean via the joloia url
-        using the parameters passed in.
-
-          If it succeeds, it generates a [jwt token](https://jwt.io/introduction) and returns
-        it back to the client. If it fails it returns a error.
-
-          Once authenticated, the client can access the
-        apis defined in this file. With each request the client
-        must include a valid jwt token in a http header
-        named `jolokia-session-id`.
-        The src will validate the token before processing a request is
-        and rejects the request if the token is not valid.
-      tags:
-        - security
-      operationId: login
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                brokerName:
-                  type: string
-                  description: 'identity of the broker instance, must in form of {cr-name}-{pod-ordinal}:{namespace}. For example ex-aao-0:test1'
-                userName:
-                  type: string
-                  description: 'The user name'
-                password:
-                  type: string
-                  description: 'The password'
-                jolokiaHost:
-                  type: string
-                  description: 'The host name of the broker'
-                scheme:
-                  type: string
-                  description: 'either *http* or *https*'
-                port:
-                  type: string
-                  description: 'port number of jolokia endpoint'
-              required:
-                - brokerName
-                - userName
-                - password
-                - jolokiaHost
-                - scheme
-                - port
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
-        401:
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/FailureResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/FailureResponse'
   /brokers:
     get:
       summary: retrieve the broker mbean
@@ -180,9 +110,15 @@ paths:
       operationId: getBrokers
       parameters:
         - in: header
-          name: jolokia-session-id
+          name: endpoint-name
           schema:
             type: string
+          required: false
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       responses:
         200:
@@ -219,10 +155,11 @@ paths:
         - jolokia
       operationId: getBrokerDetails
       parameters:
-        - in: header
-          name: jolokia-session-id
+        - in: query
+          name: targetEndpoint
           schema:
             type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       responses:
         200:
@@ -259,11 +196,6 @@ paths:
         - jolokia
       operationId: readBrokerAttributes
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: names
           description: attribute names separated by commas. If not speified read all attributes.
           required: false
@@ -274,6 +206,12 @@ paths:
               type: string
           style: form
           explode: false
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -311,11 +249,6 @@ paths:
         - jolokia
       operationId: readAddressAttributes
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           description: the address name
           schema:
@@ -332,6 +265,12 @@ paths:
               type: string
           style: form
           explode: false
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -369,11 +308,6 @@ paths:
         - jolokia
       operationId: readQueueAttributes
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           description: the queue name
           schema:
@@ -402,6 +336,12 @@ paths:
               type: string
           style: form
           explode: false
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -439,11 +379,6 @@ paths:
         - jolokia
       operationId: readAcceptorAttributes
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           description: the queue name
           schema:
@@ -460,6 +395,12 @@ paths:
               type: string
           style: form
           explode: false
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -497,11 +438,6 @@ paths:
         - jolokia
       operationId: readClusterConnectionAttributes
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           description: the cluster connection name
           schema:
@@ -518,6 +454,12 @@ paths:
               type: string
           style: form
           explode: false
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -555,15 +497,16 @@ paths:
         - jolokia
       operationId: execClusterConnectionOperation
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - in: query
           name: name
           schema:
             type: string
+          required: true
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       requestBody:
         required: true
@@ -594,41 +537,6 @@ paths:
               schema:
                 type: object
                 $ref: '#/components/schemas/FailureResponse'
-
-  /checkCredentials:
-    get:
-      summary: Check the validity of the credentials
-      tags:
-        - jolokia
-      operationId: checkCredentials
-      parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/DummyResponse'
-        401:
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/FailureResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/FailureResponse'
   /execBrokerOperation:
     post:
       summary: execute a broker operation
@@ -643,10 +551,11 @@ paths:
         - jolokia
       operationId: execBrokerOperation
       parameters:
-        - in: header
-          name: jolokia-session-id
+        - in: query
+          name: targetEndpoint
           schema:
             type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       requestBody:
         required: true
@@ -689,10 +598,11 @@ paths:
         - jolokia
       operationId: getBrokerComponents
       parameters:
-        - in: header
-          name: jolokia-session-id
+        - in: query
+          name: targetEndpoint
           schema:
             type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       responses:
         200:
@@ -728,10 +638,11 @@ paths:
         - jolokia
       operationId: getAddresses
       parameters:
-        - in: header
-          name: jolokia-session-id
+        - in: query
+          name: targetEndpoint
           schema:
             type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       responses:
         200:
@@ -767,17 +678,18 @@ paths:
         - jolokia
       operationId: getQueues
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: address
           required: false
           in: query
           schema:
             type: string
             description: If given only list the queues on this address
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -814,11 +726,6 @@ paths:
         - jolokia
       operationId: getQueueDetails
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: addressName
           required: false
           in: query
@@ -837,6 +744,12 @@ paths:
           schema:
             type: string
             description: the routing type of the queue (anycast or multicast)
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -871,17 +784,18 @@ paths:
         - jolokia
       operationId: getAddressDetails
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           required: true
           in: query
           schema:
             type: string
             description: the address name
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -914,10 +828,11 @@ paths:
         - jolokia
       operationId: getAcceptors
       parameters:
-        - in: header
-          name: jolokia-session-id
+        - in: query
+          name: targetEndpoint
           schema:
             type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       responses:
         200:
@@ -955,17 +870,18 @@ paths:
         - jolokia
       operationId: getAcceptorDetails
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           required: true
           in: query
           schema:
             type: string
             description: the acceptor name
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -998,10 +914,11 @@ paths:
         - jolokia
       operationId: getClusterConnections
       parameters:
-        - in: header
-          name: jolokia-session-id
+        - in: query
+          name: targetEndpoint
           schema:
             type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
           required: true
       responses:
         200:
@@ -1039,17 +956,18 @@ paths:
         - jolokia
       operationId: getClusterConnectionDetails
       parameters:
-        - in: header
-          name: jolokia-session-id
-          schema:
-            type: string
-          required: true
         - name: name
           required: true
           in: query
           schema:
             type: string
             description: the cluster connection name
+        - in: query
+          name: targetEndpoint
+          schema:
+            type: string
+            pattern: '^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)|\w+)$'
+          required: true
       responses:
         200:
           description: Success
@@ -1082,6 +1000,7 @@ paths:
       tags:
         - development
       operationId: apiInfo
+      security: [] #no security for api-info
       responses:
         200:
           description: Success
@@ -1171,6 +1090,11 @@ components:
         message:
           type: object
           properties:
+            security:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
             info:
               type: object
               properties:
@@ -1194,23 +1118,6 @@ components:
         status:
           type: string
           enum: [successful]
-        jolokia-session-id:
-          type: string
-          description: The jwt token
-    LoginResponse:
-      type: object
-      required:
-        - status
-        - message
-        - jolokia-session-id
-      properties:
-        message:
-          type: string
-        status:
-          type: string
-        jolokia-session-id:
-          type: string
-          description: The jwt token
     Address:
       type: object
       required:
@@ -1262,6 +1169,15 @@ components:
         - name
       properties:
         name:
+          type: string
+    Endpoint:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        url:
           type: string
     FailureResponse:
       type: object
@@ -1394,7 +1310,6 @@ components:
           type: object
           required:
             - mbean
-            - arguments
             - type
             - operation
           properties:
@@ -1417,3 +1332,7 @@ components:
           type: number
         status:
           type: number
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

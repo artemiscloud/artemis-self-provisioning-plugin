@@ -10,8 +10,6 @@ import {
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
-  PageSection,
-  PageSectionVariants,
   Spinner,
   EmptyStateHeader,
 } from '@patternfly/react-core';
@@ -53,50 +51,44 @@ export const PodsContainer: FC = () => {
 
   return (
     <>
-      <PageSection
-        variant={PageSectionVariants.light}
-        padding={{ default: 'noPadding' }}
-        className="pf-c-page__main-tabs"
-      >
-        {loadError && (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText={t('Error while retrieving the pods list.')}
-              icon={<EmptyStateIcon icon={ErrorCircleOIcon} />}
-              headingLevel="h4"
-            />
-            <EmptyStateBody>{t('No results match.')}</EmptyStateBody>
-          </EmptyState>
-        )}
-        {loading && !loadError && (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText={t('Loading')}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
-        )}
-        {!loading && !loadError && brokerPods.length === 0 && (
-          <EmptyState>
-            <EmptyStateHeader
-              titleText={t(
-                'No results found. Check the status of the deployment.',
-              )}
-              icon={<EmptyStateIcon icon={SearchIcon} />}
-              headingLevel="h4"
-            />
-            <EmptyStateBody>{t('No results match.')}</EmptyStateBody>
-          </EmptyState>
-        )}
-        {!loading && !loadError && brokerPods.length > 0 && (
-          <PodsList
-            brokerPods={brokerPods}
-            loadError={loadError}
-            loaded={!loading}
+      {loadError && (
+        <EmptyState>
+          <EmptyStateHeader
+            titleText={t('Error while retrieving the pods list.')}
+            icon={<EmptyStateIcon icon={ErrorCircleOIcon} />}
+            headingLevel="h4"
           />
-        )}
-      </PageSection>
+          <EmptyStateBody>{t('No results match.')}</EmptyStateBody>
+        </EmptyState>
+      )}
+      {loading && !loadError && (
+        <EmptyState>
+          <EmptyStateHeader
+            titleText={t('Loading')}
+            icon={<EmptyStateIcon icon={Spinner} />}
+            headingLevel="h4"
+          />
+        </EmptyState>
+      )}
+      {!loading && !loadError && brokerPods.length === 0 && (
+        <EmptyState>
+          <EmptyStateHeader
+            titleText={t(
+              'No results found. Check the status of the deployment.',
+            )}
+            icon={<EmptyStateIcon icon={SearchIcon} />}
+            headingLevel="h4"
+          />
+          <EmptyStateBody>{t('No results match.')}</EmptyStateBody>
+        </EmptyState>
+      )}
+      {!loading && !loadError && brokerPods.length > 0 && (
+        <PodsList
+          brokerPods={brokerPods}
+          loadError={loadError}
+          loaded={!loading}
+        />
+      )}
     </>
   );
 };

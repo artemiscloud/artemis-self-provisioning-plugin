@@ -5,7 +5,7 @@
 export type ExecResult = {
   request: {
     mbean: string;
-    arguments: Array<string>;
+    arguments?: Array<string>;
     type: string;
     operation: string;
   };

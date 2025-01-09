@@ -43,7 +43,7 @@ describe('BrokersList', () => {
         spec: {
           deploymentPlan: {
             image:
-              'quay.io/artemiscloud/activemq-artemis-self-provisioning-plugin:latest',
+              'quay.io/arkmq-org/activemq-artemis-self-provisioning-plugin:latest',
             requireLogin: true,
             size: 2,
           },
@@ -66,7 +66,7 @@ describe('BrokersList', () => {
         spec: {
           deploymentPlan: {
             image:
-              'quay.io/artemiscloud/activemq-artemis-self-provisioning-plugin:latest',
+              'quay.io/arkmq-org/activemq-artemis-self-provisioning-plugin:latest',
             requireLogin: true,
             size: 2,
           },

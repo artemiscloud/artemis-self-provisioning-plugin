@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+import { BrokerConnectionData } from './customHooks';
 
 export type jolokiaLoginSource = 'api' | 'session';
 
@@ -11,11 +12,10 @@ export type JolokiaLogin = {
   podOrdinal: number;
 };
 
-export const AuthContext = createContext<JolokiaLogin>({
-  token: '',
-  isLoading: true,
-  isSuccess: false,
-  isError: false,
-  source: 'api',
-  podOrdinal: 0,
+export const AuthContext = createContext<BrokerConnectionData>({
+  brokerName: '',
+  hostname: '',
+  port: '',
+  scheme: '',
+  targetEndpoint: '',
 });

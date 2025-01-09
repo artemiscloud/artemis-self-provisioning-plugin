@@ -29,11 +29,13 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
 
       - name: Set up the repo
         run: |
-          git config user.name 'artemiscloud-bot'
-          git config user.email 'bot@artemiscloud.io'
+          git config user.name 'arkmq-bot'
+          git config user.email 'bot@arkmq-org.io'
           git push
 
       - name: Update version
@@ -46,11 +48,11 @@ jobs:
           VERSION_MINOR=${VERSION_MINOR/\*/${CURRENT_VERSION_MINOR}} && VERSION_MINOR=${VERSION_MINOR/+/$((CURRENT_VERSION_MINOR+1))}
           VERSION_PATCH=${VERSION_PATCH/\*/${CURRENT_VERSION_PATCH}} && VERSION_PATCH=${VERSION_PATCH/+/$((CURRENT_VERSION_PATCH+1))}
           VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
-          PACKAGE_JSON_CONTENTS=$(jq '.version="'"$VERSION"'" \
-          | .consolePlugin.version="'"$VERSION"'" \
-          | ._id="activemq-artemis-self-provisioning-plugin@'$VERSION'"' package.json) \
-          && echo -E "${PACKAGE_JSON_CONTENTS}" > package.json && unset PACKAGE_JSON_CONTENTS
           sed -i "s~^LABEL version=.*~LABEL version=\"${VERSION}\"~g" Dockerfile
+          sed -i "s~^  \"version\":.*\"~  \"version\": \"${VERSION}\"~g" package.json
+          sed -i "s~^    \"version\":.*\"~    \"version\": \"${VERSION}\"~g" package.json
+          sed -i "s~activemq-artemis-self-provisioning-plugin@.*~activemq-artemis-self-provisioning-plugin@${VERSION}\",~g" package.json
+          sed -i "s~^version:.*~version: ${VERSION}~g" charts/openshift-console-plugin/Chart.yaml
           git commit --all --message "Update version to ${VERSION}" || echo "nothing to commit"
 
       - name: Push commits

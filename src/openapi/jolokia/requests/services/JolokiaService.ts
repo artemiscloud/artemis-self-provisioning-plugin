@@ -7,7 +7,6 @@ import type { Broker } from '../models/Broker';
 import type { ClusterConnection } from '../models/ClusterConnection';
 import type { ComponentAttribute } from '../models/ComponentAttribute';
 import type { ComponentDetails } from '../models/ComponentDetails';
-import type { DummyResponse } from '../models/DummyResponse';
 import type { ExecResult } from '../models/ExecResult';
 import type { OperationRef } from '../models/OperationRef';
 import type { Queue } from '../models/Queue';
@@ -23,18 +22,23 @@ export class JolokiaService {
    * The return value is a one-element array that contains
    * the broker's mbean object name.
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
+   * @param endpointName
    * @returns Broker Success
    * @throws ApiError
    */
   public static getBrokers(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
+    endpointName?: string,
   ): CancelablePromise<Array<Broker>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/brokers',
       headers: {
-        'jolokia-session-id': jolokiaSessionId,
+        'endpoint-name': endpointName,
+      },
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -50,18 +54,18 @@ export class JolokiaService {
    * description of all the operations and attributes of the broker's mbean.
    * It is defined in [ActiveMQServerControl.java](https://github.com/apache/activemq-artemis/blob/2.33.0/artemis-core-client/src/main/java/org/apache/activemq/artemis/api/core/management/ActiveMQServerControl.java)
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @returns ComponentDetails Success
    * @throws ApiError
    */
   public static getBrokerDetails(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
   ): CancelablePromise<ComponentDetails> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/brokerDetails',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -79,23 +83,21 @@ export class JolokiaService {
    * **Note**: to read multiple attributes, set it to **names** parameter
    * separated by commas, e.g. `Version,Status`.
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @param names attribute names separated by commas. If not speified read all attributes.
    * @returns ComponentAttribute Success
    * @throws ApiError
    */
   public static readBrokerAttributes(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
     names?: Array<string>,
   ): CancelablePromise<Array<ComponentAttribute>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/readBrokerAttributes',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         names: names,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -113,26 +115,24 @@ export class JolokiaService {
    * **Note**: to read multiple attributes, set it to **attrs** parameter
    * separated by commas, e.g. `RoutingTypes,Address`.
    *
-   * @param jolokiaSessionId
    * @param name the address name
+   * @param targetEndpoint
    * @param attrs attribute names separated by commas. If not speified read all attributes.
    * @returns ComponentAttribute Success
    * @throws ApiError
    */
   public static readAddressAttributes(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
     attrs?: Array<string>,
   ): CancelablePromise<Array<ComponentAttribute>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/readAddressAttributes',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
         attrs: attrs,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -150,32 +150,30 @@ export class JolokiaService {
    * **Note**: to read multiple attributes, set it to **attrs** parameter
    * separated by commas, e.g. `RoutingTypes,Address`.
    *
-   * @param jolokiaSessionId
    * @param name the queue name
    * @param address the address name
    * @param routingType the routing type
+   * @param targetEndpoint
    * @param attrs attribute names separated by commas. If not speified read all attributes.
    * @returns ComponentAttribute Success
    * @throws ApiError
    */
   public static readQueueAttributes(
-    jolokiaSessionId: string,
     name: string,
     address: string,
     routingType: string,
+    targetEndpoint: string,
     attrs?: Array<string>,
   ): CancelablePromise<Array<ComponentAttribute>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/readQueueAttributes',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
         address: address,
         'routing-type': routingType,
         attrs: attrs,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -193,26 +191,24 @@ export class JolokiaService {
    * **Note**: to read multiple attributes, set it to **attrs** parameter
    * separated by commas, e.g. `RoutingTypes,Address`.
    *
-   * @param jolokiaSessionId
    * @param name the queue name
+   * @param targetEndpoint
    * @param attrs attribute names separated by commas. If not speified read all attributes.
    * @returns ComponentAttribute Success
    * @throws ApiError
    */
   public static readAcceptorAttributes(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
     attrs?: Array<string>,
   ): CancelablePromise<Array<ComponentAttribute>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/readAcceptorAttributes',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
         attrs: attrs,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -230,26 +226,24 @@ export class JolokiaService {
    * **Note**: to read multiple attributes, set it to **attrs** parameter
    * separated by commas, e.g. `NodeID, Topology`.
    *
-   * @param jolokiaSessionId
    * @param name the cluster connection name
+   * @param targetEndpoint
    * @param attrs attribute names separated by commas. If not speified read all attributes.
    * @returns ComponentAttribute Success
    * @throws ApiError
    */
   public static readClusterConnectionAttributes(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
     attrs?: Array<string>,
   ): CancelablePromise<Array<ComponentAttribute>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/readClusterConnectionAttributes',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
         attrs: attrs,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -267,50 +261,26 @@ export class JolokiaService {
    * The return value is a one element json array that contains
    * return values of invoked operation along with the request info.
    *
-   * @param jolokiaSessionId
    * @param name
+   * @param targetEndpoint
    * @param requestBody
    * @returns ExecResult Success
    * @throws ApiError
    */
   public static execClusterConnectionOperation(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
     requestBody: OperationRef,
   ): CancelablePromise<Array<ExecResult>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/execClusterConnectionOperation',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
+        targetEndpoint: targetEndpoint,
       },
       body: requestBody,
       mediaType: 'application/json',
-      errors: {
-        401: `Invalid credentials`,
-        500: `Internal server error`,
-      },
-    });
-  }
-
-  /**
-   * Check the validity of the credentials
-   * @param jolokiaSessionId
-   * @returns DummyResponse Success
-   * @throws ApiError
-   */
-  public static checkCredentials(
-    jolokiaSessionId: string,
-  ): CancelablePromise<DummyResponse> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/checkCredentials',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       errors: {
         401: `Invalid credentials`,
         500: `Internal server error`,
@@ -327,20 +297,20 @@ export class JolokiaService {
    * The return value is a one element json array that contains
    * return values of invoked operation along with the request info.
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @param requestBody
    * @returns ExecResult Success
    * @throws ApiError
    */
   public static execBrokerOperation(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
     requestBody: OperationRef,
   ): CancelablePromise<Array<ExecResult>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/execBrokerOperation',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       body: requestBody,
       mediaType: 'application/json',
@@ -358,18 +328,18 @@ export class JolokiaService {
    * It retrieves and returns a list of all mbeans
    * registered directly under the broker managment domain.
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @returns string Success
    * @throws ApiError
    */
   public static getBrokerComponents(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
   ): CancelablePromise<Array<string>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/brokerComponents',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -384,18 +354,18 @@ export class JolokiaService {
    *
    * It retrieves and returns a list of all address mbeans
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @returns Address Success
    * @throws ApiError
    */
   public static getAddresses(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
   ): CancelablePromise<Array<Address>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/addresses',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -410,23 +380,21 @@ export class JolokiaService {
    *
    * It retrieves and returns a list of all queue mbeans
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @param address
    * @returns Queue Success
    * @throws ApiError
    */
   public static getQueues(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
     address?: string,
   ): CancelablePromise<Array<Queue>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/queues',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         address: address,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -443,29 +411,27 @@ export class JolokiaService {
    *
    * It is defined in [QueueControl.java](https://github.com/apache/activemq-artemis/blob/2.33.0/artemis-core-client/src/main/java/org/apache/activemq/artemis/api/core/management/QueueControl.java)
    *
-   * @param jolokiaSessionId
    * @param name
    * @param routingType
+   * @param targetEndpoint
    * @param addressName
    * @returns ComponentDetails Success
    * @throws ApiError
    */
   public static getQueueDetails(
-    jolokiaSessionId: string,
     name: string,
     routingType: string,
+    targetEndpoint: string,
     addressName?: string,
   ): CancelablePromise<ComponentDetails> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/queueDetails',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         addressName: addressName,
         name: name,
         routingType: routingType,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -482,23 +448,21 @@ export class JolokiaService {
    *
    * It is defined in [AddressControl.java](https://github.com/apache/activemq-artemis/blob/2.33.0/artemis-core-client/src/main/java/org/apache/activemq/artemis/api/core/management/AddressControl.java)
    *
-   * @param jolokiaSessionId
    * @param name
+   * @param targetEndpoint
    * @returns ComponentDetails Success
    * @throws ApiError
    */
   public static getAddressDetails(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
   ): CancelablePromise<ComponentDetails> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/addressDetails',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -513,18 +477,18 @@ export class JolokiaService {
    *
    * It retrieves and returns a list of all acceptor mbeans
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @returns Acceptor Success
    * @throws ApiError
    */
   public static getAcceptors(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
   ): CancelablePromise<Array<Acceptor>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/acceptors',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -541,23 +505,21 @@ export class JolokiaService {
    *
    * It is defined in [AcceptorControl.java](https://github.com/apache/activemq-artemis/blob/2.33.0/artemis-core-client/src/main/java/org/apache/activemq/artemis/api/core/management/AcceptorControl.java)
    *
-   * @param jolokiaSessionId
    * @param name
+   * @param targetEndpoint
    * @returns ComponentDetails Success
    * @throws ApiError
    */
   public static getAcceptorDetails(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
   ): CancelablePromise<ComponentDetails> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/acceptorDetails',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -572,18 +534,18 @@ export class JolokiaService {
    *
    * It retrieves and returns a list of all cluster connection mbeans
    *
-   * @param jolokiaSessionId
+   * @param targetEndpoint
    * @returns ClusterConnection Success
    * @throws ApiError
    */
   public static getClusterConnections(
-    jolokiaSessionId: string,
+    targetEndpoint: string,
   ): CancelablePromise<Array<ClusterConnection>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/clusterConnections',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
+      query: {
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,
@@ -600,23 +562,21 @@ export class JolokiaService {
    *
    * It is defined in [ClusterConnectionControl.java](https://github.com/apache/activemq-artemis/blob/2.33.0/artemis-core-client/src/main/java/org/apache/activemq/artemis/api/core/management/ClusterConnectionControl.java)
    *
-   * @param jolokiaSessionId
    * @param name
+   * @param targetEndpoint
    * @returns ComponentDetails Success
    * @throws ApiError
    */
   public static getClusterConnectionDetails(
-    jolokiaSessionId: string,
     name: string,
+    targetEndpoint: string,
   ): CancelablePromise<ComponentDetails> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/clusterConnectionDetails',
-      headers: {
-        'jolokia-session-id': jolokiaSessionId,
-      },
       query: {
         name: name,
+        targetEndpoint: targetEndpoint,
       },
       errors: {
         401: `Invalid credentials`,

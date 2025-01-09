@@ -16,6 +16,7 @@ spec:
   proxy:
     - type: Service
       alias: api-server-service
+      authorization: UserToken
       endpoint:
         type: Service
         service:

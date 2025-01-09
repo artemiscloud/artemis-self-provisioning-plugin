@@ -2,20 +2,23 @@ import { fireEvent, render, screen } from '@app/test-utils';
 import { AddressDetails } from './AddressDetails.component';
 import { JolokiaAuthentication } from '@app/jolokia/components/JolokiaAuthentication';
 import { useJolokiaServiceReadAddressAttributes } from '@app/openapi/jolokia/queries';
-import { useJolokiaLogin } from '@app/jolokia/customHooks';
+import {
+  BrokerConnectionData,
+  useGetEndpointData,
+} from '@app/jolokia/customHooks';
 
 jest.mock('../../openapi/jolokia/queries', () => ({
   useJolokiaServiceReadAddressAttributes: jest.fn(),
 }));
 
 jest.mock('../../jolokia/customHooks', () => ({
-  useJolokiaLogin: jest.fn(),
+  useGetEndpointData: jest.fn(),
   useGetApiServerBaseUrl: jest.fn(),
 }));
 
 const mockUseJolokiaServiceReadAddressAttributes =
   useJolokiaServiceReadAddressAttributes as jest.Mock;
-const mockUseJolokiaLogin = useJolokiaLogin as jest.Mock;
+const mockUseGetEndpointData = useGetEndpointData as jest.Mock;
 
 describe('AddressDetails', () => {
   const mockData = [
@@ -39,11 +42,14 @@ describe('AddressDetails', () => {
       isSuccess: true,
       error: null,
     });
-    mockUseJolokiaLogin.mockReturnValue({
-      token: 'mock-token',
-      isError: false,
-      source: 'api',
-    });
+    const bcd: BrokerConnectionData = {
+      brokerName: 'amqBroker',
+      hostname: 'some.name.org',
+      port: '80',
+      scheme: 'https',
+      targetEndpoint: 'https://some.name.org:80',
+    };
+    mockUseGetEndpointData.mockReturnValue(bcd);
   });
 
   it('should renders data correctly when fetch is successful', () => {

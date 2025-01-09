@@ -69,7 +69,7 @@ Clone the operator repository then run `./deploy/install_opr.sh` to install the
 operator onto your cluster.
 
 ```
-git clone git@github.com:artemiscloud/activemq-artemis-operator.git
+git clone git@github.com:arkmq-org/activemq-artemis-operator.git
 cd activemq-artemis-operator
 ./deploy/install_opr.sh
 ```
@@ -93,6 +93,22 @@ its functionalities.
 Navigate to the operatorHub on the console and search for `Cert-manager`.
 
 ### Running the plugin
+
+#### Download the secrets so that the bridge can authenticate the user with the api server backend
+
+1. For HTTP
+
+```
+cd bridge-auth-http
+./setup.sh
+```
+
+2. For HTTPS
+
+```
+cd bridge-auth-https
+./setup.sh
+```
 
 #### start the jolokia api-server
 
@@ -148,15 +164,15 @@ for details.
 
 1. Build the image:
    ```sh
-   docker build -t quay.io/artemiscloud/activemq-artemis-self-provisioning-plugin:latest .
+   docker build -t quay.io/arkmq-org/activemq-artemis-self-provisioning-plugin:latest .
    ```
 2. Run the image:
    ```sh
-   docker run -it --rm -d -p 9001:80 quay.io/artemiscloud/activemq-artemis-self-provisioning-plugin:latest
+   docker run -it --rm -d -p 9001:80 quay.io/arkmq-org/activemq-artemis-self-provisioning-plugin:latest
    ```
 3. Push the image to image registry:
    ```sh
-   docker push quay.io/artemiscloud/activemq-artemis-self-provisioning-plugin:latest
+   docker push quay.io/arkmq-org/activemq-artemis-self-provisioning-plugin:latest
    ```
 
 ## Deployment on cluster
@@ -178,7 +194,7 @@ You can deploy the plugin to a cluster by running this following command:
 Without any arguments, the plugin will run in https mode on port 9443.
 
 The optional `-i <image>` (or `--image <image>`) argument allows you to pass in the plugin image. If not specified the default
-`quay.io/artemiscloud/activemq-artemis-self-provisioning-plugin:latest` is deployed. for example:
+`quay.io/arkmq-org/activemq-artemis-self-provisioning-plugin:latest` is deployed. for example:
 
 ```sh
 ./deploy-plugin.sh -i quay.io/<repo-username>/activemq-artemis-self-provisioning-plugin:1.0.1

@@ -5,38 +5,18 @@ import {
   UseMutationOptions,
 } from '@tanstack/react-query';
 import { OperationRef } from '../requests/models/OperationRef';
-import { SecurityService } from '../requests/services/SecurityService';
 import { JolokiaService } from '../requests/services/JolokiaService';
 import { DevelopmentService } from '../requests/services/DevelopmentService';
-export const useSecurityServiceLogin = (
-  options?: Omit<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof SecurityService.login>>,
-      unknown,
-      {
-        requestBody: {
-          brokerName: string;
-          userName: string;
-          password: string;
-          jolokiaHost: string;
-          scheme: string;
-          port: string;
-        };
-      },
-      unknown
-    >,
-    'mutationFn'
-  >,
-) =>
-  useMutation(({ requestBody }) => SecurityService.login(requestBody), options);
 export const useJolokiaServiceGetBrokersKey = 'JolokiaServiceGetBrokers';
 export const useJolokiaServiceGetBrokers = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
+    endpointName,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
+    endpointName?: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -50,8 +30,11 @@ export const useJolokiaServiceGetBrokers = <
   >,
 ) =>
   useQuery(
-    [useJolokiaServiceGetBrokersKey, ...(queryKey ?? [{ jolokiaSessionId }])],
-    () => JolokiaService.getBrokers(jolokiaSessionId),
+    [
+      useJolokiaServiceGetBrokersKey,
+      ...(queryKey ?? [{ targetEndpoint, endpointName }]),
+    ],
+    () => JolokiaService.getBrokers(targetEndpoint, endpointName),
     options,
   );
 export const useJolokiaServiceGetBrokerDetailsKey =
@@ -60,9 +43,9 @@ export const useJolokiaServiceGetBrokerDetails = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -78,9 +61,9 @@ export const useJolokiaServiceGetBrokerDetails = <
   useQuery(
     [
       useJolokiaServiceGetBrokerDetailsKey,
-      ...(queryKey ?? [{ jolokiaSessionId }]),
+      ...(queryKey ?? [{ targetEndpoint }]),
     ],
-    () => JolokiaService.getBrokerDetails(jolokiaSessionId),
+    () => JolokiaService.getBrokerDetails(targetEndpoint),
     options,
   );
 export const useJolokiaServiceReadBrokerAttributesKey =
@@ -89,10 +72,10 @@ export const useJolokiaServiceReadBrokerAttributes = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
     names,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
     names?: Array<string>;
   },
   queryKey?: TQueryKey,
@@ -109,9 +92,9 @@ export const useJolokiaServiceReadBrokerAttributes = <
   useQuery(
     [
       useJolokiaServiceReadBrokerAttributesKey,
-      ...(queryKey ?? [{ jolokiaSessionId, names }]),
+      ...(queryKey ?? [{ targetEndpoint, names }]),
     ],
-    () => JolokiaService.readBrokerAttributes(jolokiaSessionId, names),
+    () => JolokiaService.readBrokerAttributes(targetEndpoint, names),
     options,
   );
 export const useJolokiaServiceReadAddressAttributesKey =
@@ -120,12 +103,12 @@ export const useJolokiaServiceReadAddressAttributes = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
+    targetEndpoint,
     attrs,
   }: {
-    jolokiaSessionId: string;
     name: string;
+    targetEndpoint: string;
     attrs?: Array<string>;
   },
   queryKey?: TQueryKey,
@@ -142,9 +125,9 @@ export const useJolokiaServiceReadAddressAttributes = <
   useQuery(
     [
       useJolokiaServiceReadAddressAttributesKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name, attrs }]),
+      ...(queryKey ?? [{ name, targetEndpoint, attrs }]),
     ],
-    () => JolokiaService.readAddressAttributes(jolokiaSessionId, name, attrs),
+    () => JolokiaService.readAddressAttributes(name, targetEndpoint, attrs),
     options,
   );
 export const useJolokiaServiceReadQueueAttributesKey =
@@ -153,16 +136,16 @@ export const useJolokiaServiceReadQueueAttributes = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
     address,
     routingType,
+    targetEndpoint,
     attrs,
   }: {
-    jolokiaSessionId: string;
     name: string;
     address: string;
     routingType: string;
+    targetEndpoint: string;
     attrs?: Array<string>;
   },
   queryKey?: TQueryKey,
@@ -179,16 +162,14 @@ export const useJolokiaServiceReadQueueAttributes = <
   useQuery(
     [
       useJolokiaServiceReadQueueAttributesKey,
-      ...(queryKey ?? [
-        { jolokiaSessionId, name, address, routingType, attrs },
-      ]),
+      ...(queryKey ?? [{ name, address, routingType, targetEndpoint, attrs }]),
     ],
     () =>
       JolokiaService.readQueueAttributes(
-        jolokiaSessionId,
         name,
         address,
         routingType,
+        targetEndpoint,
         attrs,
       ),
     options,
@@ -199,12 +180,12 @@ export const useJolokiaServiceReadAcceptorAttributes = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
+    targetEndpoint,
     attrs,
   }: {
-    jolokiaSessionId: string;
     name: string;
+    targetEndpoint: string;
     attrs?: Array<string>;
   },
   queryKey?: TQueryKey,
@@ -221,9 +202,9 @@ export const useJolokiaServiceReadAcceptorAttributes = <
   useQuery(
     [
       useJolokiaServiceReadAcceptorAttributesKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name, attrs }]),
+      ...(queryKey ?? [{ name, targetEndpoint, attrs }]),
     ],
-    () => JolokiaService.readAcceptorAttributes(jolokiaSessionId, name, attrs),
+    () => JolokiaService.readAcceptorAttributes(name, targetEndpoint, attrs),
     options,
   );
 export const useJolokiaServiceReadClusterConnectionAttributesKey =
@@ -232,12 +213,12 @@ export const useJolokiaServiceReadClusterConnectionAttributes = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
+    targetEndpoint,
     attrs,
   }: {
-    jolokiaSessionId: string;
     name: string;
+    targetEndpoint: string;
     attrs?: Array<string>;
   },
   queryKey?: TQueryKey,
@@ -258,12 +239,12 @@ export const useJolokiaServiceReadClusterConnectionAttributes = <
   useQuery(
     [
       useJolokiaServiceReadClusterConnectionAttributesKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name, attrs }]),
+      ...(queryKey ?? [{ name, targetEndpoint, attrs }]),
     ],
     () =>
       JolokiaService.readClusterConnectionAttributes(
-        jolokiaSessionId,
         name,
+        targetEndpoint,
         attrs,
       ),
     options,
@@ -274,8 +255,8 @@ export const useJolokiaServiceExecClusterConnectionOperation = (
       Awaited<ReturnType<typeof JolokiaService.execClusterConnectionOperation>>,
       unknown,
       {
-        jolokiaSessionId: string;
         name: string;
+        targetEndpoint: string;
         requestBody: OperationRef;
       },
       unknown
@@ -284,41 +265,12 @@ export const useJolokiaServiceExecClusterConnectionOperation = (
   >,
 ) =>
   useMutation(
-    ({ jolokiaSessionId, name, requestBody }) =>
+    ({ name, targetEndpoint, requestBody }) =>
       JolokiaService.execClusterConnectionOperation(
-        jolokiaSessionId,
         name,
+        targetEndpoint,
         requestBody,
       ),
-    options,
-  );
-export const useJolokiaServiceCheckCredentialsKey =
-  'JolokiaServiceCheckCredentials';
-export const useJolokiaServiceCheckCredentials = <
-  TQueryKey extends Array<unknown> = unknown[],
->(
-  {
-    jolokiaSessionId,
-  }: {
-    jolokiaSessionId: string;
-  },
-  queryKey?: TQueryKey,
-  options?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof JolokiaService.checkCredentials>>,
-      unknown,
-      Awaited<ReturnType<typeof JolokiaService.checkCredentials>>,
-      unknown[]
-    >,
-    'queryKey' | 'queryFn' | 'initialData'
-  >,
-) =>
-  useQuery(
-    [
-      useJolokiaServiceCheckCredentialsKey,
-      ...(queryKey ?? [{ jolokiaSessionId }]),
-    ],
-    () => JolokiaService.checkCredentials(jolokiaSessionId),
     options,
   );
 export const useJolokiaServiceExecBrokerOperation = (
@@ -327,7 +279,7 @@ export const useJolokiaServiceExecBrokerOperation = (
       Awaited<ReturnType<typeof JolokiaService.execBrokerOperation>>,
       unknown,
       {
-        jolokiaSessionId: string;
+        targetEndpoint: string;
         requestBody: OperationRef;
       },
       unknown
@@ -336,8 +288,8 @@ export const useJolokiaServiceExecBrokerOperation = (
   >,
 ) =>
   useMutation(
-    ({ jolokiaSessionId, requestBody }) =>
-      JolokiaService.execBrokerOperation(jolokiaSessionId, requestBody),
+    ({ targetEndpoint, requestBody }) =>
+      JolokiaService.execBrokerOperation(targetEndpoint, requestBody),
     options,
   );
 export const useJolokiaServiceGetBrokerComponentsKey =
@@ -346,9 +298,9 @@ export const useJolokiaServiceGetBrokerComponents = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -364,9 +316,9 @@ export const useJolokiaServiceGetBrokerComponents = <
   useQuery(
     [
       useJolokiaServiceGetBrokerComponentsKey,
-      ...(queryKey ?? [{ jolokiaSessionId }]),
+      ...(queryKey ?? [{ targetEndpoint }]),
     ],
-    () => JolokiaService.getBrokerComponents(jolokiaSessionId),
+    () => JolokiaService.getBrokerComponents(targetEndpoint),
     options,
   );
 export const useJolokiaServiceGetAddressesKey = 'JolokiaServiceGetAddresses';
@@ -374,9 +326,9 @@ export const useJolokiaServiceGetAddresses = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -390,8 +342,8 @@ export const useJolokiaServiceGetAddresses = <
   >,
 ) =>
   useQuery(
-    [useJolokiaServiceGetAddressesKey, ...(queryKey ?? [{ jolokiaSessionId }])],
-    () => JolokiaService.getAddresses(jolokiaSessionId),
+    [useJolokiaServiceGetAddressesKey, ...(queryKey ?? [{ targetEndpoint }])],
+    () => JolokiaService.getAddresses(targetEndpoint),
     options,
   );
 export const useJolokiaServiceGetQueuesKey = 'JolokiaServiceGetQueues';
@@ -399,10 +351,10 @@ export const useJolokiaServiceGetQueues = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
     address,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
     address?: string;
   },
   queryKey?: TQueryKey,
@@ -419,9 +371,9 @@ export const useJolokiaServiceGetQueues = <
   useQuery(
     [
       useJolokiaServiceGetQueuesKey,
-      ...(queryKey ?? [{ jolokiaSessionId, address }]),
+      ...(queryKey ?? [{ targetEndpoint, address }]),
     ],
-    () => JolokiaService.getQueues(jolokiaSessionId, address),
+    () => JolokiaService.getQueues(targetEndpoint, address),
     options,
   );
 export const useJolokiaServiceGetQueueDetailsKey =
@@ -430,14 +382,14 @@ export const useJolokiaServiceGetQueueDetails = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
     routingType,
+    targetEndpoint,
     addressName,
   }: {
-    jolokiaSessionId: string;
     name: string;
     routingType: string;
+    targetEndpoint: string;
     addressName?: string;
   },
   queryKey?: TQueryKey,
@@ -454,13 +406,13 @@ export const useJolokiaServiceGetQueueDetails = <
   useQuery(
     [
       useJolokiaServiceGetQueueDetailsKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name, routingType, addressName }]),
+      ...(queryKey ?? [{ name, routingType, targetEndpoint, addressName }]),
     ],
     () =>
       JolokiaService.getQueueDetails(
-        jolokiaSessionId,
         name,
         routingType,
+        targetEndpoint,
         addressName,
       ),
     options,
@@ -471,11 +423,11 @@ export const useJolokiaServiceGetAddressDetails = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
     name: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -491,9 +443,9 @@ export const useJolokiaServiceGetAddressDetails = <
   useQuery(
     [
       useJolokiaServiceGetAddressDetailsKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name }]),
+      ...(queryKey ?? [{ name, targetEndpoint }]),
     ],
-    () => JolokiaService.getAddressDetails(jolokiaSessionId, name),
+    () => JolokiaService.getAddressDetails(name, targetEndpoint),
     options,
   );
 export const useJolokiaServiceGetAcceptorsKey = 'JolokiaServiceGetAcceptors';
@@ -501,9 +453,9 @@ export const useJolokiaServiceGetAcceptors = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -517,8 +469,8 @@ export const useJolokiaServiceGetAcceptors = <
   >,
 ) =>
   useQuery(
-    [useJolokiaServiceGetAcceptorsKey, ...(queryKey ?? [{ jolokiaSessionId }])],
-    () => JolokiaService.getAcceptors(jolokiaSessionId),
+    [useJolokiaServiceGetAcceptorsKey, ...(queryKey ?? [{ targetEndpoint }])],
+    () => JolokiaService.getAcceptors(targetEndpoint),
     options,
   );
 export const useJolokiaServiceGetAcceptorDetailsKey =
@@ -527,11 +479,11 @@ export const useJolokiaServiceGetAcceptorDetails = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
     name: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -547,9 +499,9 @@ export const useJolokiaServiceGetAcceptorDetails = <
   useQuery(
     [
       useJolokiaServiceGetAcceptorDetailsKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name }]),
+      ...(queryKey ?? [{ name, targetEndpoint }]),
     ],
-    () => JolokiaService.getAcceptorDetails(jolokiaSessionId, name),
+    () => JolokiaService.getAcceptorDetails(name, targetEndpoint),
     options,
   );
 export const useJolokiaServiceGetClusterConnectionsKey =
@@ -558,9 +510,9 @@ export const useJolokiaServiceGetClusterConnections = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -576,9 +528,9 @@ export const useJolokiaServiceGetClusterConnections = <
   useQuery(
     [
       useJolokiaServiceGetClusterConnectionsKey,
-      ...(queryKey ?? [{ jolokiaSessionId }]),
+      ...(queryKey ?? [{ targetEndpoint }]),
     ],
-    () => JolokiaService.getClusterConnections(jolokiaSessionId),
+    () => JolokiaService.getClusterConnections(targetEndpoint),
     options,
   );
 export const useJolokiaServiceGetClusterConnectionDetailsKey =
@@ -587,11 +539,11 @@ export const useJolokiaServiceGetClusterConnectionDetails = <
   TQueryKey extends Array<unknown> = unknown[],
 >(
   {
-    jolokiaSessionId,
     name,
+    targetEndpoint,
   }: {
-    jolokiaSessionId: string;
     name: string;
+    targetEndpoint: string;
   },
   queryKey?: TQueryKey,
   options?: Omit<
@@ -607,9 +559,9 @@ export const useJolokiaServiceGetClusterConnectionDetails = <
   useQuery(
     [
       useJolokiaServiceGetClusterConnectionDetailsKey,
-      ...(queryKey ?? [{ jolokiaSessionId, name }]),
+      ...(queryKey ?? [{ name, targetEndpoint }]),
     ],
-    () => JolokiaService.getClusterConnectionDetails(jolokiaSessionId, name),
+    () => JolokiaService.getClusterConnectionDetails(name, targetEndpoint),
     options,
   );
 export const useDevelopmentServiceApiInfoKey = 'DevelopmentServiceApiInfo';

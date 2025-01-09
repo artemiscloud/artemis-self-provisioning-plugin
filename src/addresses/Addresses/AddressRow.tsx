@@ -19,12 +19,12 @@ export const AddressRow: FC<AddressRowProps> = ({
   columns,
 }) => {
   const { name } = obj;
-  const { token: authToken } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
   const { data: routingTypes, isSuccess } =
     useJolokiaServiceReadAddressAttributes({
-      jolokiaSessionId: authToken,
       name: name,
       attrs: ['RoutingTypes'],
+      targetEndpoint: authContext.targetEndpoint,
     });
 
   return (
